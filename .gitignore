@@ -10,3 +10,5 @@ tmp
 .cproject
 .project
 .vs
+/zig-cache
+/zig-out
