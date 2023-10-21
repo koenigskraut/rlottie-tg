@@ -3,21 +3,23 @@ const std = @import("std");
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
-
-    const static_lib = b.addStaticLibrary(.{
+    const dynamic = b.option(bool, "dynamic", "build dynamic library (default: false)") orelse false;
+    const opts = .{
         .name = "rlottie",
         .target = target,
         .optimize = optimize,
-    });
-    static_lib.defineCMacro("LOT_BUILD", null);
-    static_lib.defineCMacro("LOTTIE_IMAGE_MODULE_SUPPORT", "0");
-    static_lib.defineCMacro("LOTTIE_THREAD_SUPPORT", null);
-    static_lib.defineCMacro("LOTTIE_CACHE_SUPPORT", null);
-    static_lib.addIncludePath(.{ .path = "inc" });
-    static_lib.linkSystemLibrary("pthread");
-    static_lib.linkLibCpp();
-    root.addTo(static_lib, cxx_options, "src", b.allocator);
-    b.installArtifact(static_lib);
+    };
+
+    const lib = if (dynamic) b.addSharedLibrary(opts) else b.addStaticLibrary(opts);
+    lib.defineCMacro("LOT_BUILD", null);
+    lib.defineCMacro("LOTTIE_IMAGE_MODULE_SUPPORT", "0");
+    lib.defineCMacro("LOTTIE_THREAD_SUPPORT", null);
+    lib.defineCMacro("LOTTIE_CACHE_SUPPORT", null);
+    lib.addIncludePath(.{ .path = "inc" });
+    lib.linkSystemLibrary("pthread");
+    lib.linkLibCpp();
+    root.addTo(lib, cxx_options, "src", b.allocator);
+    b.installArtifact(lib);
 }
 
 const StrSlice = []const []const u8;
