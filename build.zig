@@ -10,7 +10,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     };
 
-    const lib = if (dynamic) b.addSharedLibrary(opts) else b.addStaticLibrary(opts);
+    const lib: *std.Build.Step.Compile = if (dynamic) b.addSharedLibrary(opts) else b.addStaticLibrary(opts);
     lib.defineCMacro("LOT_BUILD", null);
     lib.defineCMacro("LOTTIE_IMAGE_MODULE_SUPPORT", "0");
     lib.defineCMacro("LOTTIE_THREAD_SUPPORT", null);
@@ -19,6 +19,10 @@ pub fn build(b: *std.Build) void {
     lib.linkSystemLibrary("pthread");
     lib.linkLibCpp();
     root.addTo(lib, cxx_options, "src", b.allocator);
+
+    lib.installHeader("inc/rlottie.h", "rlottie.h");
+    lib.installHeader("inc/rlottie_capi.h", "rlottie_capi.h");
+    lib.installHeader("inc/rlottiecommon.h", "rlottiecommon.h");
     b.installArtifact(lib);
 }
 
